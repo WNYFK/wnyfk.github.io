@@ -4,13 +4,13 @@ let results: Observable<String> = Observable<Int>.interval(.seconds(1), schedule
     .flatMapLatest(convert)
     
 func convert(str: String) -> Observable<String> {
-        Observable<String>.create { observer in
-            print("convert啊啊啊啊啊啊")
-            observer.onNext("\(str)===convert")
-            observer.onCompleted()
-            return Disposables.create()
-        }
+    Observable<String>.create { observer in
+        print("convert啊啊啊啊啊啊")
+        observer.onNext("\(str)===convert")
+        observer.onCompleted()
+        return Disposables.create()
     }
+}
 </code></pre><p>下面三个订阅会使Observable创建三次，原本希望的是三个订阅者订阅同一次</p><pre data-language="undefined"><code>
 let results = results.share()
 results.subscribe(onNext: { str in
@@ -61,7 +61,30 @@ delay(4) {
         print("第三个订阅者:\(str)")
     }).disposed(by: self.disposeBag)
 }
-</code></pre><h4>replayAll</h4><p>后面订阅者会订阅后会收到所有之前的信号</p></div></div></article><div class="item-navigator"><table><tr><td></td><td class="next-item"><a href="/posts/reactorkit">reactorkit</a></td></tr></table></div><footer><p>Copyright &copy; 陈斌 2021 </p><p>Generated using <a href="https://github.com/johnsundell/publish">Publish</a></p><ul><li><a href="https://twitter.com/fatbobman">Twitter</a></li><li><a href="https://github.com/fatbobman/">Github</a></li><li><a href="https://www.zhihu.com/people/fatbobman3000">知乎</a></li><li><a href="/feed.rss">RSS</a></li></ul><script>
+</code></pre><h4>replayAll</h4><p>后面订阅者会订阅后会收到所有之前的信号</p><h4>shareReplay</h4><p>共享Observable，且第一次订阅会重复播放对应数目信号</p><pre data-language="undefined"><code>
+let results = results.share(replay: 2, scope: .forever)
+results.subscribe(onNext: { str in
+    print("第一个订阅者:\(str)")
+}).disposed(by: disposeBag)
+results.subscribe(onNext: { str in
+    print("第二个订阅者:\(str)")
+}).disposed(by: disposeBag)
+delay(4) { 
+    results.subscribe(onNext: { str in
+        print("第三个订阅者:\(str)")
+    }).disposed(by: self.disposeBag)
+}
+</code></pre><p>结果</p><pre data-language="undefined"><code>
+convert啊啊啊啊啊啊
+第一个订阅者:2===convert
+第二个订阅者:2===convert
+convert啊啊啊啊啊啊
+第一个订阅者:3===convert
+第二个订阅者:3===convert
+第三个订阅者:2===convert
+第三个订阅者:3===convert
+
+</code></pre></div></div></article><div class="item-navigator"><table><tr><td></td><td class="next-item"><a href="/posts/reactorkit">reactorkit</a></td></tr></table></div><footer><p>Copyright &copy; 陈斌 2021 </p><p>Generated using <a href="https://github.com/johnsundell/publish">Publish</a></p><ul><li><a href="https://twitter.com/fatbobman">Twitter</a></li><li><a href="https://github.com/fatbobman/">Github</a></li><li><a href="https://www.zhihu.com/people/fatbobman3000">知乎</a></li><li><a href="/feed.rss">RSS</a></li></ul><script>
     // dynamic User by Hux
     var _gaId = 'UA-165296388-1';
     var _gaDomain = 'fatbobman.com';
